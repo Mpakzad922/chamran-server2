@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سالن امتحانات هوشمند</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* استایل‌های اختصاصی آزمون */
+        .exam-item { background: #fff; border: 2px solid #e1bee7; border-radius: 16px; padding: 15px; margin-bottom: 12px; text-align: right; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; position: relative; overflow: hidden; }
+        .exam-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .exam-item.locked { background: #f8f9fa; border-color: #bdc3c7; opacity: 0.9; }
+        .new-badge { position: absolute; top: 0; left: 0; background: var(--danger); color: white; font-size: 0.7rem; padding: 3px 10px; border-radius: 0 0 10px 0; animation: pulse 1.5s infinite; font-weight: bold; }
+        
+        .option { background: #f8f9fa; border: 2px solid #e9ecef; padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; text-align: right; transition: 0.2s; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
+        .option:active { transform: scale(0.98); }
+        .option.selected { background: #e8f6f3; border-color: var(--accent); color: var(--accent); font-weight: bold; }
+        .option img { max-width: 100%; height: auto; max-height: 200px; border-radius: 8px; margin-top: 5px; display: block; align-self: center; }
+
+        /* نوار نمره */
+        .score-container { margin: 40px 0 20px 0; position: relative; padding-top: 20px; direction: ltr; } 
+        .score-bar { height: 25px; width: 100%; border-radius: 15px; background: linear-gradient(90deg, #e74c3c 0%, #e74c3c 39%, #f1c40f 40%, #f1c40f 59%, #2ecc71 60%, #2ecc71 79%, #8e44ad 80%, #8e44ad 100%); }
+        .score-pointer { position: absolute; top: -15px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid var(--primary); transform: translateX(-50%); transition: left 1.5s cubic-bezier(0.22, 1, 0.36, 1); left: 0%; z-index: 10; }
+        
+        .stat-grid { display: flex; justify-content: space-around; margin: 20px 0; background: #f8f9fa; padding: 15px; border-radius: 12px; }
+        .review-q { border-bottom: 1px solid #eee; padding: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="lightbox" onclick="this.style.display='none'">
+        <img id="lightboxImg" src="">
+    </div>
+    
+    <canvas id="confetti-canvas"></canvas>
+
+    <div id="lobby" class="card">
+        <div style="font-size: 3.5rem; margin-bottom: 5px;">📝</div>
+        <h2 id="welcomeText" style="margin:0 0 10px 0;">سالن امتحانات</h2>
+        <div id="loading">⏳ در حال دریافت اطلاعات...</div>
+        <div id="resumeAlert" style="display:none; background:#fff3cd; color:#856404; padding:12px; border-radius:12px; margin-bottom:15px;">⚠️ آزمون ناتمام بازیابی شد!</div>
+        <div id="examList"></div>
+        <button class="btn btn-outline" onclick="window.location.href='index.html'">🏠 بازگشت به کلاس</button>
+    </div>
+
+    <div id="introCard" class="card hidden">
+        <h2 style="color:var(--primary); margin-bottom:10px;" id="introTitle">عنوان آزمون</h2>
+        <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-around; margin-bottom:10px;">
+                <div><span id="introQCount" style="font-weight:bold; font-size:1.2rem;">0</span> سوال</div>
+                <div><span id="introTime" style="font-weight:bold; font-size:1.2rem;">0</span> دقیقه</div>
+            </div>
+            <small style="color:var(--danger);">⚠️ امکان بازگشت به سوال قبل وجود ندارد!</small>
+        </div>
+        
+        <div style="text-align:right; margin-bottom:20px; font-size:0.9rem;">
+            <div style="margin-bottom:5px;">💎 عالی: <b id="rewEx" style="color:var(--gem)"></b></div>
+            <div style="margin-bottom:5px;">🥇 خیلی خوب: <b id="rewVg" style="color:var(--accent)"></b></div>
+            <div>🙂 خوب: <b id="rewNr" style="color:var(--blue)"></b></div>
+        </div>
+
+        <button class="btn btn-accent" onclick="startExamNow()" style="padding:15px; font-size:1.2rem;">🚀 شروع آزمون</button>
+        <button class="btn btn-outline" onclick="location.reload()">انصراف</button>
+    </div>
+
+    <div id="examArea" class="card hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            <span id="qProgress" style="font-weight:bold;">سوال ۱</span>
+            <div id="timer" style="background:#fee; color:red; padding:5px 10px; border-radius:10px; font-weight:bold;">00:00</div>
+        </div>
+        
+        <img id="questionImage" style="max-width:100%; border-radius:10px; display:none; margin:0 auto 15px auto;" onclick="openLightbox(this.src)">
+        <h3 id="questionText" style="text-align: right; line-height: 1.8; font-size: 1.1rem;">...</h3>
+        
+        <div id="optionsContainer"></div>
+        
+        <button id="btnNext" class="btn btn-blue" onclick="nextQuestion()">سوال بعدی ⬅️</button>
+        <button id="btnFinish" class="btn btn-accent hidden" onclick="finishExam()">✅ ثبت نهایی</button>
+    </div>
+
+    <div id="reportCard" class="card hidden">
+        <h2 style="color:var(--accent);">📊 نتیجه عملکرد</h2>
+        
+        <div class="score-container">
+            <div class="score-pointer" id="scorePointer"></div>
+            <div class="score-bar"></div>
+        </div>
+        
+        <div id="qualitativeScore" style="font-size: 2rem; font-weight: bold; margin-top: 25px;">...</div>
+
+        <div class="stat-grid">
+            <div><span id="resCorrect" style="color:var(--accent); font-weight:bold; font-size:1.3rem;">0</span><br><small>درست</small></div>
+            <div><span id="resWrong" style="color:var(--danger); font-weight:bold; font-size:1.3rem;">0</span><br><small>غلط</small></div>
+            <div><span id="resEmpty" style="color:#95a5a6; font-weight:bold; font-size:1.3rem;">0</span><br><small>نزده</small></div>
+        </div>
+
+        <div id="xpMsg" style="background:#e8f6f3; color:#16a085; padding:10px; border-radius:10px; margin-bottom:15px; display:none;">
+            ✅ نمره ثبت شد و XP دریافت کردید.
+        </div>
+
+        <button id="btnReview" class="btn btn-warning hidden" onclick="startReviewMode()">🔍 تحلیل و مرور پاسخ‌ها</button>
+        <button class="btn btn-outline" onclick="window.location.href='index.html'">🏠 بازگشت به کلاس</button>
+    </div>
+
+    <div id="reviewArea" class="card hidden" style="text-align: right;">
+        <h3 style="text-align:center; color:var(--warning); border-bottom:1px solid #eee; padding-bottom:10px;">🧐 تحلیل آزمون</h3>
+        <div id="reviewContent"></div>
+        <button class="btn btn-outline" onclick="window.location.href='index.html'">🏠 پایان مرور</button>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="rank.js"></script>
+    <script src="exam.js"></script>
+</body>
+</html>

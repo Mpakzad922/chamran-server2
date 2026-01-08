@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تکالیف من 📝</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* استایل‌های اختصاصی تکالیف */
+        .hw-item {
+            background: white; border: 2px solid #eee; border-radius: 15px;
+            padding: 15px; margin-bottom: 15px; text-align: right;
+            transition: 0.2s; position: relative; overflow: hidden;
+        }
+        .hw-desc { font-size: 0.9rem; color: #666; margin: 10px 0; line-height: 1.6; background: #f9f9f9; padding: 10px; border-radius: 10px; }
+        .hw-status { font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; float: left; font-weight: bold; }
+        
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-graded { background: #d4edda; color: #155724; }
+        
+        .record-box { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; background: #f0f4f8; border-radius: 15px; margin-top: 15px; }
+        .mic-btn { width: 70px; height: 70px; border-radius: 50%; background: #e74c3c; border: none; color: white; font-size: 2rem; cursor: pointer; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4); transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .mic-btn.recording { animation: pulseRed 1s infinite; background: #c0392b; }
+        @keyframes pulseRed { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
+        .preview-img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: none; }
+        .feedback-box { background: #e8f6f3; border: 1px dashed #27ae60; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 0.9rem; color: #2c3e50; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2 style="margin:0;">📝 دفتر تکالیف</h2>
+        <p style="color:#777; font-size:0.9rem;">تکالیف جدید را انجام دهید و نمره بگیرید.</p>
+        
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button class="btn btn-primary" onclick="loadHomeworks()" style="flex:1;">🔄 بروزرسانی</button>
+            <button class="btn btn-outline" onclick="window.location.href='index.html'" style="flex:1;">🏠 بازگشت</button>
+        </div>
+
+        <div id="loading" class="spinner"></div>
+        <div id="homeworkList"></div>
+    </div>
+
+    <div id="submitModal" class="modal-overlay" onclick="if(event.target.classList.contains('modal-overlay')) closeSubmitModal()">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="color:var(--primary); margin-top:0;">ارسال تکلیف</h3>
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button class="btn btn-outline" onclick="showType('voice')">🎤 ویس</button>
+                <button class="btn btn-outline" onclick="showType('image')">📷 عکس</button>
+            </div>
+
+            <div id="voiceSection" class="hidden">
+                <div class="record-box">
+                    <button id="micBtn" class="mic-btn" onclick="toggleRecord()">🎙️</button>
+                    <div id="recordStatus">برای ضبط لمس کنید</div>
+                    <audio id="audioPreview" controls style="display:none; width:100%; margin-top:10px;"></audio>
+                </div>
+            </div>
+
+            <div id="imageSection" class="hidden">
+                <div class="record-box" style="background:white; border:2px dashed #ccc;">
+                    <p>عکس مشق را انتخاب کنید:</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
+                    <button class="btn btn-accent" onclick="document.getElementById('fileInput').click()">انتخاب فایل</button>
+                    <img id="imgPreview" class="preview-img">
+                </div>
+            </div>
+
+            <button id="btnSend" class="btn btn-primary hidden" onclick="submitFinal()" style="margin-top:20px;">📤 ارسال نهایی</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="rank.js"></script>
+    <script src="homework.js"></script>
+</body>
+</html>

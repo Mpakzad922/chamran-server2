@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل ساخت و ویرایش محتوا</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* استایل‌های اختصاصی پنل سازنده */
+        .container { width: 100%; max-width: 900px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin: 20px auto; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; overflow-x: auto; }
+        .tab-btn { flex: 1; padding: 12px; background: #ecf0f1; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: #7f8c8d; transition: 0.3s; white-space: nowrap; }
+        .tab-btn.active { background: var(--primary); color: white; transform: translateY(-3px); }
+
+        .section { display: none; animation: fadeIn 0.4s; }
+        .section.active { display: block; }
+
+        .row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        
+        .q-box { background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 15px; padding: 20px; margin-bottom: 25px; position: relative; border-right: 5px solid var(--blue); }
+        .del-q { position: absolute; left: 15px; top: 15px; color: var(--danger); cursor: pointer; border: 1px solid var(--danger); padding: 2px 8px; border-radius: 5px; background: #fff; font-size: 0.8rem; }
+        
+        .history-card { background: white; border: 1px solid #eee; border-right: 5px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .history-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        .edit-badge { background: var(--warning); color: white; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 20px; display: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <input type="file" id="globalFileInput" style="display: none;" accept="image/*">
+
+    <div id="loginOverlay" class="modal-overlay show" style="background:var(--primary);">
+        <div class="modal-content" style="text-align:center;">
+            <h2 style="margin-bottom: 20px;">🔐 ورود سازنده</h2>
+            <input type="password" id="adminTokenInput" placeholder="رمز عبور مدیریت..." style="text-align:center;">
+            <button class="btn btn-accent" onclick="checkLogin()">ورود به سیستم</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="mainContainer">
+        
+        <div id="editModeBadge" class="edit-badge">
+            ✏️ در حال ویرایش: <span id="editTargetName">...</span>
+            <button onclick="cancelEdit()" class="btn btn-outline" style="background:white; display:inline-block; width:auto; padding:5px 10px; margin-right:10px;">لغو</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('create')">➕ ساخت محتوا</button>
+            <button class="tab-btn" onclick="switchTab('manage')">📂 مدیریت فایل‌ها</button>
+        </div>
+
+        <div id="tab-create" class="section active">
+            <label>نوع محتوا را انتخاب کنید:</label>
+            <select id="contentType" onchange="toggleForm()" style="background:#f0f8ff; font-weight:bold; color:var(--primary);">
+                <option value="lesson">🎬 درس (ویدیو)</option>
+                <option value="exam">📝 آزمون (سوالات)</option>
+                <option value="homework">📤 تکلیف (جدید)</option>
+            </select>
+
+            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; background: #fff0f0; padding: 10px; border-radius: 10px; border: 1px dashed var(--danger);">
+                <input type="checkbox" id="isNewContent" style="width: 20px; margin:0;">
+                <span style="color:var(--danger); font-weight:bold;">نمایش برچسب "جدید 🔥"</span>
+            </div>
+
+            <div id="lessonForm">
+                <input id="l_title" placeholder="عنوان درس (مثلاً: ریاضی فصل ۴)">
+                <input id="l_link" dir="ltr" placeholder="لینک مستقیم فیلم (MP4)">
+                
+                <label>فایل‌های ضمیمه:</label>
+                <div id="attach_container"></div>
+                <button type="button" class="btn btn-warning" onclick="addAttachRow()" style="width:auto; font-size:0.9rem;">➕ افزودن فایل</button>
+                
+                <button id="btnSaveLesson" class="btn btn-accent" onclick="saveLesson()">💾 ذخیره درس</button>
+            </div>
+
+            <div id="examForm" class="hidden">
+                <div class="row">
+                    <input id="e_title" placeholder="نام آزمون" style="flex:2">
+                    <input type="number" id="e_time" placeholder="زمان (دقیقه)" value="15" style="flex:1">
+                    <input id="e_pass" placeholder="رمز (اختیاری)" style="flex:1">
+                </div>
+                
+                <div class="card" style="background:#e8f6f3; border:1px dashed var(--accent); padding:15px; margin:15px 0;">
+                    <h4 style="margin:0 0 10px 0; color:var(--accent);">🎁 تنظیم جوایز (XP)</h4>
+                    <div class="row">
+                        <input type="number" id="r_excellent" placeholder="عالی" value="300">
+                        <input type="number" id="r_good" placeholder="خیلی خوب" value="100">
+                        <input type="number" id="r_normal" placeholder="خوب" value="20">
+                    </div>
+                </div>
+                
+                <div id="questions_area"></div>
+                
+                <button onclick="addQuestion()" class="btn btn-warning" style="margin-bottom:10px;">➕ سوال جدید</button>
+                <button id="btnSaveExam" class="btn btn-blue" onclick="saveExam()">💾 ذخیره آزمون</button>
+            </div>
+
+            <div id="homeworkForm" class="hidden">
+                <input id="hw_title" placeholder="عنوان تکلیف (مثلاً: عکس از صفحه ۲۰ ریاضی)">
+                <textarea id="hw_desc" rows="4" placeholder="توضیحات کامل برای دانش‌آموز..."></textarea>
+                <button id="btnSaveHomework" class="btn btn-primary" onclick="saveHomework()">💾 ذخیره تکلیف</button>
+            </div>
+        </div>
+
+        <div id="tab-manage" class="section">
+            <input type="text" id="searchBox" placeholder="🔍 جستجو..." onkeyup="renderHistory()">
+            <div id="contentList"></div>
+            <button onclick="fetchHistory()" class="btn btn-outline" style="margin-top:20px;">🔄 بروزرسانی لیست</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="creator.js"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت هوشمند</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* استایل‌های اختصاصی ادمین */
+        body { padding-bottom: 80px; } /* جا برای منوی پایین */
+        
+        /* هدر */
+        header { background: var(--primary); color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 20px 20px; margin: -15px -15px 20px -15px; }
+        
+        /* تب‌های پایین */
+        .tabs { display: flex; justify-content: space-around; background: white; padding: 10px 0; position: fixed; bottom: 0; left: 0; width: 100%; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 100; }
+        .tab-btn { background: none; border: none; flex: 1; text-align: center; color: #95a5a6; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; }
+        .tab-btn.active { color: var(--blue); font-weight: bold; transform: scale(1.1); }
+        .tab-icon { font-size: 1.4rem; margin-bottom: 3px; }
+
+        /* لیست کاربران */
+        .user-card { display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-right: 5px solid transparent; }
+        .user-card:hover { background-color: #f8f9fa; }
+        
+        /* وضعیت آنلاین */
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 5px; }
+        .st-online { background: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        .st-recent { background: #f39c12; }
+        .st-offline { background: #95a5a6; }
+
+        /* استایل‌های داخل مودال (پروفایل) */
+        .profile-header { text-align: center; background: #f8f9fa; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+        .stat-badge { display: inline-block; background: white; padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin: 0 5px; font-weight: bold; }
+        
+        .section-title { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 10px; font-size: 1rem; }
+        
+        /* آیتم‌های لیست (درس و آزمون) */
+        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .list-row:last-child { border: none; }
+        
+        /* کارت تکلیف (در ادمین) */
+        .hw-card { background: #fff; border: 2px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 10px; }
+        .hw-actions { background: #f0f8ff; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px dashed var(--blue); }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay" class="modal-overlay show" style="background:var(--primary);">
+        <div class="modal-content" style="text-align:center;">
+            <h2 style="margin-bottom: 20px;">🛡️ پنل مدیریت</h2>
+            <input type="password" id="adminPass" placeholder="رمز عبور مدیر..." style="text-align:center;">
+            <button class="btn btn-blue" onclick="doLogin()">ورود</button>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden" style="width:100%; max-width:800px;">
+        <header>
+            <h1 style="font-size:1.2rem; margin:0;">پنل مدیریت</h1>
+            <div>
+                <button class="btn btn-outline" style="color:white; border-color:white; padding:5px 10px;" onclick="downloadBackup()">💾 بکاپ</button>
+                <button class="btn btn-outline" style="color:white; border-color:white; padding:5px 10px;" onclick="fetchData()">🔄</button>
+            </div>
+        </header>
+
+        <div id="tab-users" class="section show">
+            <input type="text" id="searchBox" placeholder="🔍 جستجوی دانش‌آموز..." onkeyup="filterUsers()">
+            <div id="usersList"></div>
+        </div>
+
+        <div id="tab-notifs" class="section hidden">
+            <div class="card">
+                <h3 style="margin-top:0;">🔔 ارسال اعلان جدید</h3>
+                <input id="notifTxt" placeholder="متن پیام...">
+                <select id="notifType">
+                    <option value="info">ℹ️ اطلاع‌رسانی (آبی)</option>
+                    <option value="alert">⚠️ هشدار (قرمز)</option>
+                    <option value="success">🎉 تبریک (سبز)</option>
+                </select>
+                <button class="btn btn-blue" onclick="sendNotification()">ارسال به همه</button>
+            </div>
+            <h4 style="margin:20px 10px 10px;">تاریخچه پیام‌ها:</h4>
+            <div id="notifHistoryList"></div>
+        </div>
+
+        <div id="tab-lessons" class="section hidden">
+            <h3 style="text-align:center;">📊 آمار بازدید درس‌ها</h3>
+            <div id="lessonsStats"></div>
+        </div>
+
+        <div id="tab-exams" class="section hidden">
+            <h3 style="text-align:center;">📝 دفتر نمرات آزمون</h3>
+            <div id="examsStats"></div>
+        </div>
+
+        <div id="tab-ranking" class="section hidden">
+            <h3 style="text-align:center;">🏆 تالار افتخارات</h3>
+            <div id="rankingList"></div>
+        </div>
+    </div>
+
+    <div class="tabs" id="tabMenu">
+        <button class="tab-btn active" onclick="switchTab('users')"><span class="tab-icon">👥</span>کاربران</button>
+        <button class="tab-btn" onclick="switchTab('notifs')"><span class="tab-icon">🔔</span>اعلانات</button>
+        <button class="tab-btn" onclick="switchTab('lessons')"><span class="tab-icon">🎬</span>درس‌ها</button>
+        <button class="tab-btn" onclick="switchTab('exams')"><span class="tab-icon">📝</span>نمرات</button>
+        <button class="tab-btn" onclick="switchTab('ranking')"><span class="tab-icon">🏆</span>برترین‌ها</button>
+    </div>
+
+    <div id="detailModal" class="modal-overlay" onclick="if(event.target.classList.contains('modal-overlay')) closeModal()">
+        <div class="modal-content" style="max-width:600px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 id="modalTitle" style="margin:0; color:var(--primary);">پروفایل</h3>
+                <button onclick="closeModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">×</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
