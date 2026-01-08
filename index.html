@@ -3,149 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>میز مطالعه هوشمند چمران (نسخه نهایی 💎)</title>
+    <title>مدرسه هوشمند چمران</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <canvas id="confetti-canvas"></canvas>
-
-    <div id="lightbox" onclick="this.style.display='none'">
-        <img id="lightboxImg" src="">
-    </div>
+    <canvas id="confetti-canvas" style="position:fixed; top:0; left:0; z-index:900; pointer-events:none; display:none;"></canvas>
 
     <div id="intro-overlay">
         <div class="signature-container">
-            <div class="sig-prefix">Created By</div>
-            <div class="sig-name" data-text="Mohammad Pakzad">Mohammad Pakzad</div>
+            <div style="font-size:0.8rem; letter-spacing:3px; color:white; margin-bottom:10px;">CREATED BY</div>
+            <div class="sig-name">Mohammad Pakzad</div>
         </div>
     </div>
 
-    <div id="offlineBadge" class="offline-badge hidden"></div>
-
-    <div id="notifModal" class="modal-overlay" onclick="if(event.target.classList.contains('modal-overlay')) closeNotif()">
-        <div class="modal-content">
-            <h3 style="margin-top:0; color:var(--primary);">📬 پیام‌ها و اعلانات</h3>
-            <div id="notifListContainer"></div>
-            <button class="btn btn-outline" onclick="closeNotif()" style="margin-top:15px;">بستن</button>
-        </div>
-    </div>
-
-    <div id="historyModal" class="modal-overlay" onclick="if(event.target.classList.contains('modal-overlay')) this.style.display='none'">
-        <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                <h3 style="margin:0; color:var(--primary);">📜 پرونده آزمون‌ها</h3>
-                <button onclick="document.getElementById('historyModal').style.display='none'" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">×</button>
-            </div>
-            <div id="historyListContainer" class="history-list">
-                <small style="color:#aaa; text-align:center; display:block;">درحال دریافت سوابق...</small>
-            </div>
-        </div>
-    </div>
-
-    <div id="screen-login" class="card">
+    <div id="screen-login" class="lessons-container" style="text-align:center; margin-top:50px;">
         <div style="font-size: 4rem; margin-bottom: 10px;">🎓</div>
-        <h2>کلاس مجازی چمران</h2>
-        <p style="color: #7f8c8d; font-size: 0.9rem;">نام کاربری و رمز عبور خود را وارد کنید</p>
-        
-        <input type="text" id="inpUser" placeholder="نام کاربری (انگلیسی)" style="direction: ltr;">
-        <input type="tel" id="inpPass" placeholder="رمز عبور (عدد)" style="direction: ltr;">
-        
-        <button id="btnLogin" class="btn btn-primary" onclick="performLogin()">ورود امن 🔐</button>
-        <div id="loginMsg" style="margin-top:15px; color:var(--danger); font-size:0.9rem;"></div>
-        
-        <div id="loading" class="hidden"><div class="spinner"></div><br>درحال ارتباط با سرور...</div>
-        
-        <div class="signature-container footer-signature" id="loginFooterSig">
-            <div class="sig-prefix">Created By</div>
-            <div class="sig-name" data-text="Mohammad Pakzad">Mohammad Pakzad</div>
-        </div>
+        <h2>ورود به کلاس</h2>
+        <input type="text" id="inpUser" placeholder="نام کاربری..." style="width:100%; padding:15px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd; text-align:center;">
+        <input type="tel" id="inpPass" placeholder="رمز عبور..." style="width:100%; padding:15px; margin-bottom:20px; border-radius:10px; border:1px solid #ddd; text-align:center;">
+        <button id="btnLogin" class="big-btn btn-hw" onclick="performLogin()" style="width:100%;">ورود امن 🔐</button>
+        <div id="loginMsg" style="color:red; margin-top:10px;"></div>
     </div>
 
-    <div id="screen-library" class="card hidden">
-        <div class="user-panel">
-            <div>
-                <div id="displayName" style="font-weight:bold; font-size:1.2rem;">دانش‌آموز</div>
-                <div id="user-rank" class="rank-badge">تازه‌وارد</div>
-            </div>
-            <div style="text-align:center;">
-                <div class="top-icons">
-                    <div class="gem-box"><span id="user-gem">0</span> 💎</div>
-                    <div class="icon-btn" onclick="showNotifications()">
-                        🔔
-                        <div id="notifDot" class="notif-dot"></div>
-                    </div>
+    <div id="screen-library" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+        
+        <div class="header-card">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div onclick="showNotifications()" style="font-size:1.5rem; cursor:pointer; position:relative;">
+                    🔔 <div id="notifDot" style="width:10px; height:10px; background:red; border-radius:50%; position:absolute; top:0; right:0; display:none;"></div>
                 </div>
-                <div id="user-xp" style="font-size:0.9rem; font-weight:bold; margin-top:5px; opacity:0.8;">0 XP</div>
-            </div>
-        </div>
-
-        <div class="wall-of-fame">
-            <div class="wall-particles p1"></div><div class="wall-particles p2"></div><div class="wall-particles p3"></div>
-            <div style="position:relative; z-index:2;">
-                <div class="wall-header">
-                    <div class="wall-title">🏆 نخبگان آخرین آزمون</div>
-                    <div id="examNameBadge" style="font-size:0.75rem; background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:15px; color: white;">درحال بررسی...</div>
+                <div class="stats-box">
+                    <span id="user-gem">0</span> 💎
                 </div>
-                <div id="wallContainer" class="wall-scroll"><small style="color:rgba(255,255,255,0.7);">درحال دریافت لیست قهرمانان...</small></div>
+            </div>
+            <div class="header-info" style="text-align:left;">
+                <h2 id="displayName">دانش‌آموز</h2>
+                <div class="rank-tag" id="user-rank">نوآموز</div>
+                <div style="font-size:0.8rem; margin-top:5px; opacity:0.8;" id="user-xp">0 XP</div>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-            <button onclick="window.location.href='azmoon.html'" class="btn btn-accent" style="margin:0; box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);">📝 آزمون آنلاین</button>
-            <button onclick="window.location.href='homework.html'" class="btn btn-blue" style="margin:0; box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3);">📤 تکالیف</button>
-        </div>
-        <button onclick="alert('🛍️ فروشگاه به زودی باز می‌شود!\nامتیاز و الماس جمع کنید.')" class="btn btn-warning" style="margin-bottom:10px;">🛒 فروشگاه جوایز</button>
-        
-        <button onclick="openHistory()" class="btn btn-outline" style="margin-bottom: 20px;">📜 پرونده و سوابق من</button>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
-            <h3 style="margin:0;">درس‌های من</h3>
-            <div class="logout-btn" onclick="logout()" style="color:red; cursor:pointer; font-size:0.8rem; border:1px solid red; padding:3px 8px; border-radius:5px;">خروج 🚪</div>
+        <div class="wall-luxury">
+            <div class="wall-title">🏆 نخبگان آخرین آزمون</div>
+            <div id="wallContainer" class="wall-scroll">
+                <small style="color:rgba(255,255,255,0.7); display:block; text-align:center; width:100%;">درحال بارگذاری...</small>
+            </div>
         </div>
 
-        <div id="video-list-container"></div>
-        
-        <div class="signature-container footer-signature show" style="margin-top: 10px; border:none;">
-            <div class="sig-name" data-text="M. Pakzad" style="font-size: 1rem;">M. Pakzad</div>
+        <div class="action-grid">
+            <button onclick="window.location.href='azmoon.html'" class="big-btn btn-exam">📝 آزمون آنلاین</button>
+            <button onclick="alert('به زودی...')" class="big-btn btn-shop">🛒 فروشگاه</button>
         </div>
+        
+        <div class="action-grid" style="margin-bottom:20px;">
+            <button onclick="window.location.href='homework.html'" class="big-btn btn-hw">📤 ارسال تکالیف (جدید)</button>
+        </div>
+
+        <button onclick="openHistory()" class="btn btn-outline">📜 پرونده و سوابق من</button>
+
+        <div class="lessons-container">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <h3 style="margin:0;">درس‌های من</h3>
+                <span onclick="logout()" style="color:red; cursor:pointer; font-size:0.9rem;">خروج 🚪</span>
+            </div>
+            <div id="video-list-container"></div>
+        </div>
+        
+        <div style="margin-top:20px; color:#aaa; font-size:0.8rem;">Created By M. Pakzad</div>
     </div>
 
-    <div id="screen-player" class="card hidden" style="padding:0; background:transparent; box-shadow:none; max-width:800px;">
-        <div id="playerContainer">
-            <div id="cheatAlert" class="alert-box hidden">⛔ جلو زدن فیلم مجاز نیست!</div>
-            
-            <div id="securityModal">
-                <div id="timerDisplay" class="timer-circle">۶۰</div>
-                <h3>🔒 حضور غیاب هوشمند</h3>
-                <div id="mathQ" class="math-question">...</div>
-                <input type="tel" id="mathAns" placeholder="پاسخ؟" style="width: 150px; color:black; background: rgba(255,255,255,0.9);">
-                <button class="btn btn-primary" onclick="checkSecurityAnswer()" style="width: 150px; background:white; color:var(--primary);">ثبت پاسخ ✅</button>
-            </div>
-
-            <video id="myVideo" playsinline disablePictureInPicture></video>
-            
-            <div class="custom-controls" id="controlsBar">
-                <button class="c-btn" id="playBtn" onclick="togglePlay()">▶️</button>
-                <div class="progress-bar-container" id="progressBarContainer">
-                    <div id="progressBar" class="progress-fill"></div>
-                    <div id="progressThumb" class="progress-thumb"></div>
+    <div id="screen-player" class="lessons-container hidden" style="padding:0; overflow:hidden;">
+        <div id="playerContainer" style="position:relative; background:black;">
+            <div id="cheatAlert" style="position:absolute; top:10px; left:10px; background:rgba(255,0,0,0.8); color:white; padding:5px 10px; border-radius:5px; display:none;">⛔ جلو زدن مجاز نیست!</div>
+            <video id="myVideo" playsinline style="width:100%; display:block;"></video>
+            <div class="custom-controls" id="controlsBar" style="background:rgba(0,0,0,0.7); padding:10px; display:flex; gap:10px; align-items:center;">
+                <button id="playBtn" onclick="togglePlay()" style="background:none; border:none; color:white;">▶️</button>
+                <div id="progressBarContainer" style="flex:1; height:5px; background:#555; position:relative; cursor:pointer;">
+                    <div id="progressBar" style="height:100%; width:0%; background:var(--accent);"></div>
+                    <div id="progressThumb" style="width:12px; height:12px; background:white; border-radius:50%; position:absolute; top:-3.5px; left:0%;"></div>
                 </div>
-                <span id="timeDisplay" style="color:white; font-size:0.8rem; margin:0 10px; min-width:50px;">00:00</span>
-                <button class="c-btn" onclick="toggleFullScreen()" title="تمام صفحه">⛶</button>
+                <span id="timeDisplay" style="color:white; font-size:0.8rem;">00:00</span>
+                <button onclick="toggleFullScreen()" style="background:none; border:none; color:white;">⛶</button>
             </div>
         </div>
-        <div style="padding: 15px; background: white; border-radius: 0 0 20px 20px; position:relative; z-index:10; box-shadow: 0 8px 20px rgba(0,0,0,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button class="back-btn" onclick="closePlayer()" style="background:#f1f2f6; border:none; padding:8px 15px; border-radius:10px;">بازگشت</button>
-                <strong id="videoTitle" style="font-size: 0.9rem;">عنوان درس</strong>
+        <div style="padding:15px;">
+            <div style="display:flex; justify-content:space-between;">
+                <button onclick="closePlayer()" style="background:#eee; border:none; padding:5px 10px; border-radius:5px;">بازگشت</button>
+                <strong id="videoTitle">عنوان درس</strong>
             </div>
             <div id="downloadContainer"></div>
-            <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.8rem;">
-                <span id="viewPercent" style="color: var(--accent); font-weight: bold;">۰٪</span>
-                <span id="viewStatus" style="color: #95a5a6;">در حال تماشا...</span>
+            <div style="margin-top:10px; font-size:0.8rem; display:flex; justify-content:space-between;">
+                <span id="viewPercent" style="color:var(--accent); font-weight:bold;">0%</span>
+                <span id="viewStatus">در حال تماشا...</span>
             </div>
+        </div>
+    </div>
+
+    <div id="securityModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; justify-content:center; align-items:center;">
+        <div style="background:white; padding:20px; border-radius:15px; text-align:center;">
+            <div id="timerDisplay" style="font-size:2rem; font-weight:bold; color:red;">60</div>
+            <h3>🔒 حضور غیاب</h3>
+            <div id="mathQ" style="font-size:1.5rem; margin:10px 0;">...</div>
+            <input type="tel" id="mathAns" placeholder="پاسخ؟" style="padding:10px; width:100px; text-align:center;">
+            <button onclick="checkSecurityAnswer()" class="btn" style="background:var(--primary); color:white; display:block; width:100%; margin-top:10px;">ثبت</button>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1500; justify-content:center; align-items:center;">
+        <div class="lessons-container" style="max-height:80vh; overflow-y:auto;">
+            <h3>📜 پرونده سوابق</h3>
+            <div id="historyListContainer"></div>
+            <button onclick="document.getElementById('historyModal').style.display='none'" class="btn-outline" style="margin-top:10px;">بستن</button>
+        </div>
+    </div>
+
+    <div id="notifModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1500; justify-content:center; align-items:center;">
+        <div class="lessons-container">
+            <h3>🔔 پیام‌ها</h3>
+            <div id="notifListContainer"></div>
+            <button onclick="document.getElementById('notifModal').style.display='none'" class="btn-outline" style="margin-top:10px;">بستن</button>
         </div>
     </div>
 
