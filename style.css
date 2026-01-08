@@ -1,10 +1,16 @@
-/* style.css - استایل اصلی */
+/* style.css - بازگشت به استایل لوکس و اصلی */
 @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
 
 :root { 
-    --primary: #2c3e50; --accent: #27ae60; --blue: #2980b9; 
-    --danger: #c0392b; --warning: #f39c12; --bg: #ecf0f1; 
-    --white: #fff; --gem: #9b59b6; --gold: #f1c40f; 
+    --primary: #2c3e50;    /* سرمه‌ای تیره */
+    --accent: #27ae60;     /* سبز */
+    --gold: #f1c40f;       /* طلایی */
+    --dark-bg: #1a252f;    /* پس‌زمینه تیره نخبگان */
+    --danger: #c0392b; 
+    --blue: #2980b9;
+    --bg: #ecf0f1;
+    --white: #fff;
+    --gem: #9b59b6;
 }
 
 body {
@@ -14,54 +20,94 @@ body {
     user-select: none; -webkit-tap-highlight-color: transparent;
 }
 
-/* کارت‌ها */
-.card {
-    background: var(--white); width: 100%; max-width: 600px;
-    padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    margin-bottom: 20px; text-align: center; position: relative;
-    animation: fadeIn 0.5s ease;
+/* --- هدر اختصاصی (مشکی/سرمه‌ای) --- */
+.header-card {
+    background: var(--primary); /* رنگ تیره */
+    color: white;
+    width: 100%; max-width: 600px;
+    padding: 15px 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(44, 62, 80, 0.4);
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
 }
-@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.header-info h2 { margin: 0; font-size: 1.2rem; }
+.rank-tag { background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 10px; font-size: 0.8rem; margin-top: 5px; display: inline-block; }
 
-/* دکمه‌ها */
-.btn {
-    border: none; padding: 12px 20px; border-radius: 12px; font-size: 1rem;
-    cursor: pointer; font-family: inherit; font-weight: bold; width: 100%;
-    transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
-    margin-top: 10px; color: white;
+.stats-box {
+    background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 15px;
+    display: flex; gap: 10px; align-items: center;
 }
-.btn:active { transform: scale(0.98); }
-.btn-primary { background: var(--primary); }
-.btn-accent { background: var(--accent); }
-.btn-danger { background: var(--danger); }
-.btn-blue { background: var(--blue); }
-.btn-outline { background: transparent; border: 2px solid #bdc3c7; color: #7f8c8d; }
 
-/* ورودی‌ها */
-input, select, textarea {
-    width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 12px;
-    font-family: inherit; font-size: 1rem; outline: none; box-sizing: border-box;
-    margin-bottom: 10px; transition: 0.3s; text-align: center;
+/* --- بخش نخبگان (طلایی و لوکس) --- */
+.wall-luxury {
+    background: var(--primary); /* پس زمینه تیره */
+    border: 3px solid var(--gold); /* حاشیه طلایی */
+    border-radius: 20px;
+    padding: 15px;
+    width: 100%; max-width: 600px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(241, 196, 15, 0.3);
+    position: relative;
+    overflow: hidden;
 }
-input:focus, textarea:focus { border-color: var(--blue); }
+.wall-title { color: var(--gold); text-align: center; margin-bottom: 15px; font-weight: bold; font-size: 1.1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.wall-scroll {
+    display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;
+}
+.wall-scroll::-webkit-scrollbar { display: none; }
 
-/* ابزارها */
+.top-student-card {
+    background: white; min-width: 120px; padding: 15px 10px;
+    border-radius: 15px; text-align: center;
+    border-bottom: 4px solid var(--gold);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+/* --- دکمه‌های اصلی (جدا از هم) --- */
+.action-grid {
+    display: flex; gap: 15px; width: 100%; max-width: 600px; margin-bottom: 15px;
+}
+.big-btn {
+    flex: 1; padding: 15px; border-radius: 15px; border: none; color: white;
+    font-family: inherit; font-size: 1rem; font-weight: bold; cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1); transition: transform 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.big-btn:active { transform: scale(0.95); }
+.btn-shop { background: var(--gold); color: #444; }
+.btn-exam { background: #8e44ad; } /* بنفش */
+.btn-hw { background: #2980b9; } /* آبی */
+
+/* --- لیست درس‌ها --- */
+.lessons-container {
+    background: white; width: 100%; max-width: 600px;
+    padding: 20px; border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+/* --- انیمیشن ورود (امضا) --- */
+#intro-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--primary); z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+}
+.move-down { transform: translateY(100%); }
+
+.signature-container { text-align: center; color: var(--gold); }
+.sig-name { 
+    font-size: 3rem; font-family: 'Cinzel Decorative', cursive; 
+    border-bottom: 2px solid var(--gold); padding-bottom: 10px;
+    animation: drawName 2s ease forwards; opacity: 0;
+}
+@keyframes drawName { 0%{opacity:0; letter-spacing: 10px;} 100%{opacity:1; letter-spacing: 2px;} }
+
+/* --- استایل‌های عمومی --- */
 .hidden { display: none !important; }
 .show { display: block !important; }
-.spinner {
-    width: 30px; height: 30px; border: 4px solid #f3f3f3;
-    border-top: 4px solid var(--accent); border-radius: 50%;
-    animation: spin 1s linear infinite; margin: 10px auto;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* مودال */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); z-index: 2000; display: none;
-    justify-content: center; align-items: center; backdrop-filter: blur(5px);
-}
-.modal-content {
-    background: white; width: 90%; max-width: 500px; padding: 25px;
-    border-radius: 20px; text-align: right; max-height: 85vh; overflow-y: auto;
-}
+.btn { border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-family: inherit; }
+.btn-outline { background: white; border: 2px solid #ddd; width: 100%; max-width: 600px; color: #555; font-weight: bold; margin-bottom: 20px; }
